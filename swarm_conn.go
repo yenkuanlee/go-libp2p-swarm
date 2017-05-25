@@ -74,6 +74,11 @@ func (c *Conn) RemotePublicKey() ic.PubKey {
 	return c.RawConn().RemotePublicKey()
 }
 
+// RemoteGupkey is the group key of the peer on the remote side
+func (c *Conn) RemoteGupkey() string {
+	return c.RawConn().RemoteGupkey()
+}
+
 // NewSwarmStream returns a new Stream from this connection
 func (c *Conn) NewSwarmStream() (*Stream, error) {
 	s, err := c.StreamConn().NewStream()

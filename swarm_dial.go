@@ -1,6 +1,9 @@
 package swarm
 
 import (
+	"strings"
+	"io/ioutil"
+
 	"context"
 	"errors"
 	"fmt"
@@ -269,6 +272,15 @@ func (s *Swarm) dial(ctx context.Context, p peer.ID) (*Conn, error) {
 		logdial["error"] = err.Error()
 		return nil, err
 	}
+
+	if !strings.EqualFold(connC.RemoteGupkey(),GetDomainName()){
+		connC, err = s.dialAddrs(ctx, "", remoteAddrChan)
+		if err != nil {
+			logdial["error"] = err
+			return nil, err
+		}
+	}
+
 	logdial["netconn"] = lgbl.NetConn(connC)
 
 	// ok try to setup the new connection.
@@ -406,4 +418,17 @@ func dialConnSetup(ctx context.Context, s *Swarm, connC iconn.Conn) (*Conn, erro
 	}
 
 	return swarmC, err
+}
+
+func GetDomainName() string{
+	dat, err := ioutil.ReadFile("/opt/iservstor/conf/iservstor.conf")
+	if err != nil{
+		fmt.Println("error !!")
+		return "NO FILE"
+	}
+	tmp := strings.Split(string(dat),"DOMAIN_NAME")[1]
+	tmpp := strings.Split(tmp,"\n")[0]
+	tmppp := strings.Split(tmpp,"=")[1]
+	DomainName := strings.Replace(tmppp," ","",-1)
+	return DomainName
 }
